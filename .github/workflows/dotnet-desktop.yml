@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,30 +16,24 @@ jobs:
     runs-on: windows-latest
 
     env:
-      Solution_Name: DoubleDashPlotter.sln  # Your solution file is in the repository root
+      Solution_Name: DoubleDashPlotter.sln
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install .NET Core
+      - name: Install .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      - name: Setup MSBuild.exe
-        uses: microsoft/setup-msbuild@v2
+      - name: Restore dependencies
+        run: dotnet restore $env:Solution_Name
 
-      - name: Restore the application
-        run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
-        env:
-          Configuration: ${{ matrix.configuration }}
-
-      # Optionally, list files for debugging to verify the output folder (uncomment if needed)
-      - name: List build outputs
-        run: dir /s /b
+      - name: Build solution
+        run: dotnet build $env:Solution_Name --configuration ${{ matrix.configuration }} --no-restore
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
