@@ -1,0 +1,40 @@
+﻿<Window x:Class="DoubleDashPlotter.PlotterPoint"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DoubleDashPlotter"
+        mc:Ignorable="d"
+        Topmost="True"
+        Title="PlotterPoint" Height="450" Width="368">
+    <Grid HorizontalAlignment="Center" Width="512" Background="#1a1a1d" Margin="0,0,0,-58">
+        <!-- <Button Content="Make Image Black and White and Display" HorizontalAlignment="Left" Margin="463,243,0,0" VerticalAlignment="Top" Height="35" Width="240" Click="Button_Click"/> -->
+        <Grid HorizontalAlignment="Center" Width="348" Background="#3e3e40" Margin="0,340,0,69">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40*"/>
+                <RowDefinition Height="37*"/>
+            </Grid.RowDefinitions>
+            <Label Content="Detected Speed: " HorizontalAlignment="Left" Margin="15,14,0,0" VerticalAlignment="Top" FontSize="10" Foreground="White" Grid.RowSpan="2"/>
+            <Label Content="NaN" HorizontalAlignment="Left" Margin="251,14,0,0" VerticalAlignment="Top" FontSize="10" x:Name="Speed_Label" Foreground="White" Grid.RowSpan="2"/>
+        </Grid>
+        <Button Content="Start Speed Capture" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="36" Width="348" x:Name="SpeedCapture" Click="SpeedCapture_Click" FontSize="17" Background="#90e590"/>
+        <Label Content="Input Image" HorizontalAlignment="Left" Margin="99,235,0,0" VerticalAlignment="Top" Foreground="White" FontSize="17" />
+        <Image Height="66" Width="114" RenderTransformOrigin="0.491,0.531" x:Name="SpeedCanvas" HorizontalAlignment="Left" Canvas.Top="1" VerticalAlignment="Top" Margin="93,268,0,0"/>
+        <Canvas x:Name="DotCanvas" Background="Transparent" Margin="93,268,306,157">
+
+            <!-- Points will be drawn here -->
+        </Canvas>
+        <Button Content="Show Detection Probes" HorizontalAlignment="Left" Margin="226,289,0,0" VerticalAlignment="Top" Width="204" Height="33" Background="#007acc" Foreground="White" FontSize="15" Click="Button_Click_1" x:Name="Show_Probes"/>
+        <Button Content="Save New Probe Coordinates" HorizontalAlignment="Left" Margin="226,251,0,0" VerticalAlignment="Top" Width="204" Height="33" Background="#007acc" Foreground="White" FontSize="15" x:Name="Dump_Probes" Click="Dump_Probes_Click"/>
+        <Button Content="Open Data Analasys Window" HorizontalAlignment="Center" Margin="0,51,0,0" VerticalAlignment="Top" Height="36" Width="348" x:Name="Analize_Click" Click="Analize_Click_Func" FontSize="17" Background="#007acc" Foreground="White"/>
+        <TextBox HorizontalAlignment="Left" Margin="104,217,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="85" x:Name="TextBox_SpeedGate"/>
+        <TextBlock HorizontalAlignment="Left" Margin="229,217,0,0" TextWrapping="Wrap" Text="Set incorrect data cap (upper)" VerticalAlignment="Top" Foreground="White"/>
+        <Image Height="100" Width="100" Margin="144,108,268,284"/>
+        <Button Margin="392,211,92,0" Height="29" VerticalAlignment="Top" Foreground="Transparent" Background="Transparent" BorderBrush="Transparent" Click="Button_Click_2" FocusVisualStyle="{x:Null}">
+            <Image Source="/info-mark.png" Stretch="Fill" Width="24" />
+        </Button>
+        <Button Content="Set" HorizontalAlignment="Left" Margin="194,217,0,0" VerticalAlignment="Top" Width="30" Height="18" Background="#007acc" Foreground="White" FontSize="10" x:Name="Set_SpeedCap" Click="Set_SpeedCap_Click"/>
+
+
+    </Grid>
+</Window>

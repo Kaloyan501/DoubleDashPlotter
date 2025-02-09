@@ -1,0 +1,56 @@
+﻿<Window x:Class="DoubleDashPlotter.Graph"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DoubleDashPlotter"
+        xmlns:ScottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+        mc:Ignorable="d"
+        Title="Graph" Height="505" Width="929">
+    <Grid Background="#1C1C1C">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="752*"/>
+            <ColumnDefinition Width="177*"/>
+        </Grid.ColumnDefinitions>
+
+        <ScottPlot:WpfPlot x:Name="DataPlot" Margin="0,35,0,0"/>
+
+        <!-- Buttons and Textboxes with updated VerticalAlignment -->
+        <Button Content="Open Speed DB" HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="156" FontSize="17" Background="#007acc" Foreground="White" Click="Button_Click"/>
+        <Button Content="Calculate" HorizontalAlignment="Center" VerticalAlignment="Top" Height="34" Width="177" FontSize="17" Background="#007acc" Foreground="White" Click="CalculateButton_Click" Grid.Column="1"/>
+
+        <!-- Updated TextBoxes to ensure correct vertical behavior -->
+        <TextBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,39,0,0" TextWrapping="Wrap" Text="Lowest Speed:" Width="157" x:Name="lowestspeed" TextChanged="lowestspeed_TextChanged" Background="#1C1C1C" Foreground="White"/>
+        <TextBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,81,0,0" TextWrapping="Wrap" Text="Highest Speed:" Width="157" x:Name="highestspeed" TextChanged="lowestspeed_TextChanged" Background="#1C1C1C" Foreground="White"/>
+        <TextBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,120,0,0" TextWrapping="Wrap" Text="Average Speed:" Width="157" x:Name="averagespeed" TextChanged="lowestspeed_TextChanged" Background="#1C1C1C" Foreground="White"/>
+        <TextBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,161,0,0" TextWrapping="Wrap" Text="Average Acceleration (m/s²):" Width="157" x:Name="averageaccel" TextChanged="lowestspeed_TextChanged" Height="35" Background="#1C1C1C" Foreground="White"/>
+
+        <ProgressBar Grid.Column="1" Margin="195,308,-175,108" x:Name="lowestspeed_progress" Visibility="Hidden"/>
+        <ProgressBar Grid.Column="1" Margin="195,336,-175,80" x:Name="highestspeed_progress" Visibility="Hidden"/>
+        <ProgressBar Grid.Column="1" Margin="195,410,-175,6" x:Name="averateacel_progress" Visibility="Hidden"/>
+        <ProgressBar Grid.Column="1" Margin="195,368,-175,48" x:Name="averatespeed_progress" Visibility="Hidden"/>
+
+        <!-- Hint TextBox updated to avoid vertical resizing -->
+        <TextBox Margin="10,295,10,117" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                 Text="Enter starting time." Background="#1C1C1C" Foreground="White" Name="StartingTimeHint" Grid.Column="1"/>
+
+        <TextBox Margin="10,331,10,83" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                 Text="Enter end time." Background="#1C1C1C" Foreground="White" Name="EndTimeHint" Grid.Column="1"/>
+
+        <Grid Grid.Column="1" Margin="0,218,0,0">
+            <Button HorizontalAlignment="Center" VerticalAlignment="Top" Height="72" Width="177" FontSize="17" Background="#007acc" Foreground="White" Click="CalculateButton_TimeFrame_Click">
+                <TextBlock TextWrapping="Wrap" HorizontalAlignment="Center">
+                    <Run Text="Calculate acceleration"/>
+                    <LineBreak />
+                    <Run Text="for time frame"/>
+                </TextBlock>
+            </Button>
+
+            <TextBox Margin="10,77,10,0" x:Name="StartingTime" Background="Transparent" TextChanged="StartingTimeHint_TextChanged" Foreground="White" VerticalAlignment="Top" SelectionOpacity="-4"/>
+            <TextBox Margin="10,114,10,0" Background="Transparent" TextChanged="EndTimeHint_TextChanged" x:Name="EndTime" Foreground="White" VerticalAlignment="Top"/>
+        </Grid>
+
+        <TextBox Grid.Column="1" Margin="10,366,10,0" TextWrapping="Wrap" Text="Average acceleration: " Width="157" Height="52" Background="#1C1C1C" Foreground="White" x:Name="TimeFrameCalculatedResult" VerticalAlignment="Top" TextChanged="TimeFrameCalculatedResult_TextChanged"/>
+        <TextBox Grid.Column="1" Margin="10,433,10,0" TextWrapping="Wrap" Text="Average speed: " Width="157" Height="46" Background="#1C1C1C" Foreground="White" x:Name="SpeedTimeFrameCalculatedResult" VerticalAlignment="Top" TextChanged="TimeFrameCalculatedResult_TextChanged"/>
+    </Grid>
+</Window>
