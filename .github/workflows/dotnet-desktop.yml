@@ -32,11 +32,11 @@ jobs:
       - name: Build the application
         run: msbuild $env:Solution_Name /t:Build /p:Configuration=${{ matrix.configuration }} /p:UseSharedCompilation=false
 
-      # Copy the build outputs (the .exe and its dependencies) from the bin folder to a publish folder
       - name: Prepare Publish Folder
         run: |
           mkdir publish
-          xcopy /E /I /Y DoubleDashPlotter/DoubleDashPlotter/bin/${{ matrix.configuration }} publish
+          xcopy /E /I /Y "DoubleDashPlotter\DoubleDashPlotter\bin\${{ matrix.configuration }}" "publish"
+
 
       # Upload the publish folder as a build artifact (artifact name is tagged with the configuration)
       - name: Upload Build Artifacts
