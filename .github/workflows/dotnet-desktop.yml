@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:  # Enables a "Run workflow" button in GitHub Actions
+  workflow_dispatch:
 
 jobs:
   build:
@@ -13,13 +13,13 @@ jobs:
       matrix:
         configuration: [Debug, Release]
 
-    runs-on: windows-latest  # See available runner types here: https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    runs-on: windows-latest
 
     env:
-      Solution_Name: DoubleDashPlotter.sln                         # Replace with your solution name, e.g., MyWpfApp.sln.
-      Test_Project_Path: DoubleDashPlotter/DoubleDashPlotter.csproj   # Replace with the path to your test project.
-      Wap_Project_Directory: DoubleDashPlotter         # Replace with your WAP project directory relative to the solution.
-      Wap_Project_Path: DoubleDashPlotter.Package.wapproj                    # Replace with the path to your WAP project, e.g., MyWpfApp.Package.wapproj.
+      Solution_Name: DoubleDashPlotter.sln
+      Test_Project_Path: DoubleDashPlotter/DoubleDashPlotter.csproj
+      Wap_Project_Directory: DoubleDashPlotter
+      Wap_Project_Path: DoubleDashPlotter.Package.wapproj
 
     steps:
       - name: Checkout
@@ -27,37 +27,42 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Install the .NET Core SDK
       - name: Install .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          cache: true  # Enable caching for NuGet packages
+          cache: true  # Enables NuGet package caching
 
-      # Add MSBuild to the PATH
       - name: Setup MSBuild.exe
         uses: microsoft/setup-msbuild@v2
 
-      # Restore dependencies
-      - name: Restore dependencies
-        run: dotnet restore $env:Solution_Name --configfile nuget.config
+      - name: Ensure `packages.lock.json` is enabled
+        run: |
+          echo '<Project><PropertyGroup><RestorePackagesWithLockFile>true</RestorePackagesWithLockFile></PropertyGroup></Project>' > Directory.Build.props
+
+      - name: Restore Dependencies
+        run: dotnet restore $env:Solution_Name --force
         env:
           Configuration: ${{ matrix.configuration }}
 
-      # Execute all unit tests in the solution
+      - name: Verify `packages.lock.json` exists
+        run: |
+          if (!(Test-Path -Path "packages.lock.json" -PathType Leaf)) {
+            Write-Error "packages.lock.json is missing. Ensure that 'RestorePackagesWithLockFile' is enabled."
+            exit 1
+          }
+
       - name: Execute unit tests
         run: dotnet test $env:Test_Project_Path --configuration $env:Configuration
         env:
           Configuration: ${{ matrix.configuration }}
 
-      # Decode the base64 encoded PFX and save the signing certificate
       - name: Decode the PFX
         run: |
           $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
           $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
           [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
-      # Create the app package by building and packaging the Windows Application Packaging project
       - name: Create the app package
         run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
         env:
@@ -66,11 +71,9 @@ jobs:
           Appx_Package_Build_Mode: StoreUpload
           Configuration: ${{ matrix.configuration }}
 
-      # Remove the PFX file
       - name: Remove the PFX
         run: Remove-Item -Path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
 
-      # Upload the MSIX package artifact
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
