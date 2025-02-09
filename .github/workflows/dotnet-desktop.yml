@@ -5,38 +5,45 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   build:
     strategy:
       matrix:
-        configuration: [Debug, Release]
-
+        configuration: [ Debug, Release ]
     runs-on: windows-latest
-
     env:
+      # Replace with your solution name if different.
       Solution_Name: DoubleDashPlotter.sln
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install .NET Core SDK
+      - name: Install .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore $env:Solution_Name
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v2
 
-      - name: Build solution
-        run: dotnet build $env:Solution_Name --configuration ${{ matrix.configuration }} --no-restore
+      - name: Restore the application
+        run: msbuild $env:Solution_Name /t:Restore /p:Configuration=${{ matrix.configuration }}
+
+      - name: Build the application
+        run: msbuild $env:Solution_Name /t:Build /p:Configuration=${{ matrix.configuration }}
+
+      # The publish step creates a folder with the .exe and all necessary files.
+      # Adjust the project path (DoubleDashPlotter/DoubleDashPlotter.csproj) as needed.
+      - name: Publish the application
+        run: dotnet publish DoubleDashPlotter/DoubleDashPlotter.csproj --configuration ${{ matrix.configuration }} --output ./publish
+        # If you need a self-contained executable, you can add:
+        # --runtime win-x64 --self-contained true
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Build-Outputs
-          path: bin/${{ matrix.configuration }}/
+          path: ./publish
