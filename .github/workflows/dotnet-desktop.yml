@@ -1,4 +1,4 @@
-name: .NET Desktop Build
+name: .NET Framework Build
 
 on:
   push:
@@ -13,36 +13,34 @@ jobs:
         configuration: [ Debug, Release ]
     runs-on: windows-latest
     env:
+      # Replace with your solution name if different
       Solution_Name: DoubleDashPlotter.sln
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install .NET Core
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-
       - name: Setup MSBuild.exe
         uses: microsoft/setup-msbuild@v2
 
+      # Restore packages using MSBuild
       - name: Restore the application
         run: msbuild $env:Solution_Name /t:Restore /p:Configuration=${{ matrix.configuration }}
 
+      # Build the solution with shared compilation disabled
       - name: Build the application
-        run: msbuild $env:Solution_Name /t:Build /p:Configuration=${{ matrix.configuration }}
+        run: msbuild $env:Solution_Name /t:Build /p:Configuration=${{ matrix.configuration }} /p:UseSharedCompilation=false
 
-      # Instead of publishing via dotnet publish (which fails for .NET Framework projects),
-      # copy the built outputs (including the .exe and its dependencies) from the bin folder.
+      # Copy the build outputs (the .exe and its dependencies) from the bin folder to a publish folder
       - name: Prepare Publish Folder
         run: |
           mkdir publish
           xcopy /E /I /Y DoubleDashPlotter/DoubleDashPlotter/bin/${{ matrix.configuration }} publish
 
+      # Upload the publish folder as a build artifact (artifact name is tagged with the configuration)
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Build-Outputs
+          name: Build-Outputs-${{ matrix.configuration }}
           path: ./publish
