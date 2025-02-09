@@ -1,4 +1,4 @@
-name: .NET Core Desktop
+name: .NET Desktop Build
 
 on:
   push:
@@ -13,7 +13,6 @@ jobs:
         configuration: [ Debug, Release ]
     runs-on: windows-latest
     env:
-      # Replace with your solution name if different.
       Solution_Name: DoubleDashPlotter.sln
     steps:
       - name: Checkout
@@ -35,12 +34,12 @@ jobs:
       - name: Build the application
         run: msbuild $env:Solution_Name /t:Build /p:Configuration=${{ matrix.configuration }}
 
-      # The publish step creates a folder with the .exe and all necessary files.
-      # Adjust the project path (DoubleDashPlotter/DoubleDashPlotter.csproj) as needed.
-      - name: Publish the application
-        run: dotnet publish DoubleDashPlotter/DoubleDashPlotter.csproj --configuration ${{ matrix.configuration }} --output ./publish
-        # If you need a self-contained executable, you can add:
-        # --runtime win-x64 --self-contained true
+      # Instead of publishing via dotnet publish (which fails for .NET Framework projects),
+      # copy the built outputs (including the .exe and its dependencies) from the bin folder.
+      - name: Prepare Publish Folder
+        run: |
+          mkdir publish
+          xcopy /E /I /Y DoubleDashPlotter/DoubleDashPlotter/bin/${{ matrix.configuration }} publish
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
