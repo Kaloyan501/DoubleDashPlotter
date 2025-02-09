@@ -1,4 +1,4 @@
-name: .NET Core Desktop
+name: .NET Build & Test
 
 on:
   push:
@@ -9,11 +9,10 @@ on:
 
 jobs:
   build:
+    runs-on: windows-latest
     strategy:
       matrix:
         configuration: [Debug, Release]
-
-    runs-on: windows-latest
 
     env:
       Solution_Name: DoubleDashPlotter.sln
@@ -22,18 +21,18 @@ jobs:
       Wap_Project_Path: DoubleDashPlotter.Package.wapproj
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install .NET Core
+      - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
           cache: true  # Enables NuGet package caching
 
-      - name: Setup MSBuild.exe
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
       - name: Ensure `packages.lock.json` is enabled
@@ -52,8 +51,13 @@ jobs:
             exit 1
           }
 
-      - name: Execute unit tests
-        run: dotnet test $env:Test_Project_Path --configuration $env:Configuration
+      - name: Build the Solution
+        run: dotnet build $env:Solution_Name --configuration $env:Configuration --no-restore
+        env:
+          Configuration: ${{ matrix.configuration }}
+
+      - name: Run Unit Tests
+        run: dotnet test $env:Test_Project_Path --configuration $env:Configuration --no-build --verbosity normal
         env:
           Configuration: ${{ matrix.configuration }}
 
@@ -63,7 +67,7 @@ jobs:
           $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
           [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
-      - name: Create the app package
+      - name: Create the App Package
         run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
         env:
           Appx_Bundle: Always
@@ -74,7 +78,7 @@ jobs:
       - name: Remove the PFX
         run: Remove-Item -Path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
 
-      - name: Upload build artifacts
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: MSIX Package
